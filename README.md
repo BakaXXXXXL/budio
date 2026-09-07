@@ -4,17 +4,40 @@ B站视频/音频提取工具，支持交互式 CLI 界面，可选择提取音�
 
 ## 安装
 
+### 前置要求
+
+- Node.js >= 16
+- Python >= 3.10
+- ffmpeg（视频合并和音频转码必需）
+
+**Ubuntu/Debian:**
+```bash
+sudo apt install python3 ffmpeg
+```
+
+**macOS:**
+```bash
+brew install python3 ffmpeg
+```
+
+### 安装 budio
+
 ```bash
 npm install -g budio
 ```
 
 安装完成后，在任意目录输入 `budio` 即可启动。
 
-### 前置要求
+## 卸载
 
-- Node.js >= 16
-- Python >= 3.10
-- ffmpeg（视频合并和音频转码必需）
+```bash
+npm uninstall -g budio
+```
+
+删除配置文件（可选）：
+```bash
+rm -rf ~/.config/budio
+```
 
 ## 使用
 
@@ -25,14 +48,20 @@ budio
 
 文件将下载到当前终端所在目录。
 
+### 首次运行
+
+首次运行时会引导你设置 Cookie（可跳过）：
+- 粘贴 Netscape 格式的 Cookie 内容，自动保存
+- 直接回车跳过，后续可在配置文件中设置
+
 ### 配置文件
 
-首次运行后会在 `~/.config/budio/config.toml` 生成配置文件：
+配置文件位于 `~/.config/budio/config.toml`：
 
 ```toml
 [cookie]
 # Cookie 文件路径（Netscape 格式）
-# 留空则不使用 Cookie，启动时询问
+# 留空则启动时询问
 path = ""
 
 [download]
@@ -46,11 +75,13 @@ audio_format = "mp3"
 video_format = "mp4"
 ```
 
-编辑配置文件可预设 Cookie 路径、下载目录和默认格式。
+### Cookie 获取
 
-### Cookie 配置
-
-下载高清/会员内容需要 Cookie。将导出的 Netscape 格式 Cookie 文件路径填入配置文件的 `cookie.path` 字段。
+下载高清/会员内容需要 Cookie。获取步骤：
+1. 在浏览器安装 Cookie Editor 扩展
+2. 访问 bilibili.com 并登录
+3. 点击扩展导出 Netscape 格式 Cookie
+4. 将内容粘贴到首次运行的提示中，或保存为文件后配置 `cookie.path`
 
 ## 功能特性
 
