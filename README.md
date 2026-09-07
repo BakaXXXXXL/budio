@@ -22,18 +22,15 @@ brew install python3 ffmpeg
 
 ### 安装 budio
 
-**方式一：从 GitHub tarball 安装（推荐，兼容性最好）**
+**方式一：从 GitHub 安装**
 ```bash
-npm install -g https://codeload.github.com/BakaXXXXXL/budio/tar.gz/main
-```
-
-**方式二：从 GitHub git 源安装**
-```bash
+npm config set fetch-git true
+npm config set fetch-remote true
 npm install -g github:BakaXXXXXL/budio
 ```
-> 注意：npm v12+ 默认禁止 git 源，需先执行 `npm config set fetch-git true`
+> 注意：npm v12+ 默认禁止外部源，需先执行上面两行配置
 
-**方式三：克隆仓库后本地安装**
+**方式二：克隆仓库后本地安装**
 ```bash
 git clone https://github.com/BakaXXXXXL/budio.git
 cd budio
