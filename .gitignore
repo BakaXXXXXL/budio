@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+venv/
+.venv/
+node_modules/
+*.mp3
+*.m4a
+*.flac
+*.mp4
+*.mkv
+*.webm
+cookie.txt

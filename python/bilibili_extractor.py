@@ -9,6 +9,11 @@ import sys
 import tempfile
 from pathlib import Path
 
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
+
 import questionary
 import yt_dlp
 from rich.console import Console
@@ -60,6 +65,55 @@ AUDIO_QUALITIES = {
 BILIBILI_URL_PATTERN = re.compile(
     r"https?://(?:www\.)?(?:bilibili\.com/(?:video/|festival/[^/?#]+\?(?:[^#]*&)?bvid=)[aAbB][vV][^/?#&]+|b23\.tv/\S+)"
 )
+
+
+def load_config() -> dict:
+    """加载 TOML 配置文件。"""
+    default_config = {
+        "cookie": {"path": ""},
+        "download": {"output_dir": "", "audio_format": "mp3", "video_format": "mp4"},
+    }
+
+    # 配置文件查找顺序
+    home = Path.home()
+    config_paths = [
+        home / ".config" / "biliaudio" / "config.toml",
+        Path(__file__).parent.parent / "config" / "biliaudio.toml",
+    ]
+
+    for config_path in config_paths:
+        if config_path.exists():
+            try:
+                with open(config_path, "rb") as f:
+                    config = tomllib.load(f)
+                # 合并默认值
+                for key in default_config:
+                    if key not in config:
+                        config[key] = default_config[key]
+                    else:
+                        for k, v in default_config[key].items():
+                            if k not in config[key]:
+                                config[key][k] = v
+                return config
+            except Exception:
+                pass
+
+    return default_config
+
+
+def init_user_config():
+    """首次运行时，将默认配置复制到用户目录。"""
+    user_config_dir = Path.home() / ".config" / "biliaudio"
+    user_config_file = user_config_dir / "config.toml"
+
+    if user_config_file.exists():
+        return
+
+    # 查找包内默认配置
+    default_config = Path(__file__).parent.parent / "config" / "biliaudio.toml"
+    if default_config.exists():
+        user_config_dir.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(default_config, user_config_file)
 
 COOKIE_HELP_TEXT = """
 [bold]Cookie 获取方法 (用于下载高清/会员内容):[/bold]
@@ -454,6 +508,16 @@ def main():
         )
         sys.exit(1)
 
+    # 初始化用户配置
+    init_user_config()
+
+    # 加载配置
+    config = load_config()
+    cookie_path = config.get("cookie", {}).get("path", "")
+    default_output_dir = config.get("download", {}).get("output_dir", "")
+    default_audio_fmt = config.get("download", {}).get("audio_format", "mp3")
+    default_video_fmt = config.get("download", {}).get("video_format", "mp4")
+
     url = questionary.text("请输入B站视频链接:").ask()
     if not url:
         console.print("[red]已取消[/red]")
@@ -468,13 +532,10 @@ def main():
     cookies_from_browser = None
     cookie_file = None
 
-    # 检查脚本目录下是否有 cookie.txt
-    script_dir = Path(__file__).parent
-    default_cookie_file = script_dir / "cookie.txt"
-
-    if default_cookie_file.exists():
-        console.print(f"[green]自动使用Cookie文件: {default_cookie_file.name}[/green]")
-        cookie_file = str(default_cookie_file)
+    # 检查配置文件中的 cookie 路径
+    if cookie_path and os.path.exists(cookie_path):
+        console.print(f"[green]自动使用Cookie文件: {cookie_path}[/green]")
+        cookie_file = cookie_path
     else:
         # Cookie 选项
         cookie_choices = ["不需要Cookie (仅下载免费内容)"]
@@ -567,16 +628,21 @@ def main():
         console.print("[red]已取消[/red]")
         return
 
-    output_dir = questionary.text("保存目录:", default=".").ask()
+    output_dir = questionary.text("保存目录:", default=default_output_dir or ".").ask()
     if not output_dir:
         console.print("[red]已取消[/red]")
         return
     output_dir = output_dir.strip() or "."
 
     if mode in ("仅提取音频", "音视频同时提取"):
+        # 查找默认音频格式对应的显示名
+        audio_default_key = next(
+            (k for k, v in AUDIO_FORMATS.items() if v == default_audio_fmt), "MP3"
+        )
         format_choice = questionary.select(
             "选择音频格式:",
             choices=list(AUDIO_FORMATS.keys()),
+            default=audio_default_key,
         ).ask()
         if not format_choice:
             console.print("[red]已取消[/red]")
@@ -609,9 +675,14 @@ def main():
             console.print(f"\n[red]音频下载失败:[/red] {e}")
 
     if mode in ("仅下载视频", "音视频同时提取"):
+        # 查找默认视频格式对应的显示名
+        video_default_key = next(
+            (k for k, v in VIDEO_FORMATS.items() if v == default_video_fmt), "MP4"
+        )
         format_choice = questionary.select(
             "选择视频格式:",
             choices=list(VIDEO_FORMATS.keys()),
+            default=video_default_key,
         ).ask()
         if not format_choice:
             console.print("[red]已取消[/red]")
