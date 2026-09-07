@@ -24,8 +24,8 @@ brew install python3 ffmpeg
 
 **方式一：从 GitHub 安装**
 ```bash
-npm config set fetch-git true
-npm config set fetch-remote true
+npm config set allow-git all
+npm config set allow-remote all
 npm install -g github:BakaXXXXXL/budio
 ```
 > 注意：npm v12+ 默认禁止外部源，需先执行上面两行配置
