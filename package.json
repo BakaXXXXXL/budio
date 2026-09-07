@@ -1,9 +1,9 @@
 {
-  "name": "biliaudio",
-  "version": "1.0.0",
+  "name": "budio",
+  "version": "1.0.1",
   "description": "B站视频/音频提取工具 - 交互式CLI，支持多种格式输出",
   "bin": {
-    "biliaudio": "bin/biliaudio.js"
+    "budio": "bin/budio.js"
   },
   "files": [
     "bin/",

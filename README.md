@@ -1,14 +1,14 @@
-# biliaudio
+# budio
 
 B站视频/音频提取工具，支持交互式 CLI 界面，可选择提取音频或视频，支持多种主流格式输出。
 
 ## 安装
 
 ```bash
-npm install -g biliaudio
+npm install -g budio
 ```
 
-安装完成后，在任意目录输入 `biliaudio` 即可启动。
+安装完成后，在任意目录输入 `budio` 即可启动。
 
 ### 前置要求
 
@@ -19,12 +19,15 @@ npm install -g biliaudio
 ## 使用
 
 ```bash
-biliaudio
+cd ~/Music
+budio
 ```
+
+文件将下载到当前终端所在目录。
 
 ### 配置文件
 
-首次运行后会在 `~/.config/biliaudio/config.toml` 生成配置文件：
+首次运行后会在 `~/.config/budio/config.toml` 生成配置文件：
 
 ```toml
 [cookie]

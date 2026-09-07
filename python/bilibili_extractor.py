@@ -32,7 +32,7 @@ console = Console()
 
 BANNER = Text.from_markup(
     "[bold cyan]╔═══════════════════════════════════╗\n"
-    "║   B站视频/音频提取工具 v1.0      ║\n"
+    "║     B站视频/音频提取工具 v1.0    ║\n"
     "╚═══════════════════════════════════╝[/bold cyan]"
 )
 
@@ -77,7 +77,7 @@ def load_config() -> dict:
     # 配置文件查找顺序
     home = Path.home()
     config_paths = [
-        home / ".config" / "biliaudio" / "config.toml",
+        home / ".config" / "budio" / "config.toml",
         Path(__file__).parent.parent / "config" / "biliaudio.toml",
     ]
 
@@ -103,7 +103,7 @@ def load_config() -> dict:
 
 def init_user_config():
     """首次运行时，将默认配置复制到用户目录。"""
-    user_config_dir = Path.home() / ".config" / "biliaudio"
+    user_config_dir = Path.home() / ".config" / "budio"
     user_config_file = user_config_dir / "config.toml"
 
     if user_config_file.exists():
