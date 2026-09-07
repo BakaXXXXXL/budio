@@ -516,6 +516,8 @@ def main():
     # 加载配置
     config = load_config()
     cookie_path = config.get("cookie", {}).get("path", "")
+    if cookie_path:
+        cookie_path = str(Path(cookie_path))
     default_output_dir = config.get("download", {}).get("output_dir", "")
     default_audio_fmt = config.get("download", {}).get("audio_format", "mp3")
     default_video_fmt = config.get("download", {}).get("video_format", "mp4")
@@ -541,7 +543,8 @@ def main():
                     if config_file.exists():
                         with open(config_file, "r", encoding="utf-8") as f:
                             content = f.read()
-                        content = content.replace('path = ""', f'path = "{cookie_file_path}"')
+                        toml_safe_path = str(cookie_file_path).replace("\\", "/")
+                        content = content.replace('path = ""', f'path = "{toml_safe_path}"')
                         with open(config_file, "w", encoding="utf-8") as f:
                             f.write(content)
                     cookie_path = str(cookie_file_path)
