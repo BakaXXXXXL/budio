@@ -520,23 +520,23 @@ def main():
     default_audio_fmt = config.get("download", {}).get("audio_format", "mp3")
     default_video_fmt = config.get("download", {}).get("video_format", "mp4")
 
-    # 首次运行引导：提示用户粘贴Cookie
-    if is_first_run:
-        console.print("[bold]首次使用，欢迎使用 budio！[/bold]\n")
-        console.print("[yellow]提示:[/yellow] 如果需要下载高清/会员内容，请粘贴Cookie（Netscape格式）")
-        console.print("  获取方法: 在浏览器安装 Cookie Editor 扩展，访问 bilibili.com 登录后导出")
-        console.print("  直接按回车可跳过，后续可在配置文件中设置\n")
+    # 未配置Cookie时，提示用户粘贴
+    if not cookie_path:
+        if is_first_run:
+            console.print("[bold]首次使用，欢迎使用 budio！[/bold]\n")
+        console.print("[yellow]提示:[/yellow] 粘贴Cookie可下载高清/会员内容（Netscape格式）")
+        console.print("  获取方法: 浏览器安装 Cookie Editor 扩展 → 访问 bilibili.com 登录 → 导出")
+        console.print("  直接按回车跳过，仅下载免费内容\n")
 
         cookie_input = questionary.text("粘贴Cookie内容 (回车跳过):", default="").ask()
         if cookie_input and cookie_input.strip():
             user_config_dir = Path.home() / ".config" / "budio"
             cookie_file_path = user_config_dir / "cookies.txt"
             try:
-                # 检查是否包含 Netscape 格式标记
                 if "# Netscape" in cookie_input or "# Http Cookie File" in cookie_input:
+                    user_config_dir.mkdir(parents=True, exist_ok=True)
                     with open(cookie_file_path, "w", encoding="utf-8") as f:
                         f.write(cookie_input)
-                    # 更新配置文件中的 cookie 路径
                     config_file = user_config_dir / "config.toml"
                     if config_file.exists():
                         with open(config_file, "r", encoding="utf-8") as f:
@@ -545,13 +545,13 @@ def main():
                         with open(config_file, "w", encoding="utf-8") as f:
                             f.write(content)
                     cookie_path = str(cookie_file_path)
-                    console.print(f"[green]Cookie已保存: {cookie_file_path}[/green]\n")
+                    console.print(f"[green]Cookie已保存[/green]\n")
                 else:
-                    console.print("[yellow]格式不正确，未识别到Netscape格式标记，跳过[/yellow]\n")
+                    console.print("[yellow]未识别到Netscape格式，跳过[/yellow]\n")
             except Exception as e:
                 console.print(f"[red]保存Cookie失败: {e}[/red]\n")
         else:
-            console.print("[cyan]已跳过，后续可在 ~/.config/budio/config.toml 中设置[/cyan]\n")
+            console.print("[cyan]已跳过[/cyan]\n")
 
     url = questionary.text("请输入B站视频链接:").ask()
     if not url:
