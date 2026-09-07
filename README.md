@@ -23,7 +23,7 @@ brew install python3 ffmpeg
 ### 安装 budio
 
 ```bash
-npm install -g budio
+npm install -g github:BakaXXXXXL/budio
 ```
 
 安装完成后，在任意目录输入 `budio` 即可启动。
