@@ -515,9 +515,22 @@ def main():
 
     # 加载配置
     config = load_config()
-    cookie_path = config.get("cookie", {}).get("path", "")
-    if cookie_path:
-        cookie_path = str(Path(cookie_path))
+    user_config_dir = Path.home() / ".config" / "budio"
+
+    # 优先从 .cookie_path 文件读取 cookie 路径
+    cookie_path_file = user_config_dir / ".cookie_path"
+    cookie_path = ""
+    if cookie_path_file.exists():
+        try:
+            cookie_path = cookie_path_file.read_text(encoding="utf-8").strip()
+        except Exception:
+            pass
+
+    # 兼容旧版：从 config.toml 读取
+    if not cookie_path:
+        cookie_path = config.get("cookie", {}).get("path", "")
+        if cookie_path:
+            cookie_path = str(Path(cookie_path))
     default_output_dir = config.get("download", {}).get("output_dir", "")
     default_audio_fmt = config.get("download", {}).get("audio_format", "mp3")
     default_video_fmt = config.get("download", {}).get("video_format", "mp4")
@@ -539,14 +552,9 @@ def main():
                     user_config_dir.mkdir(parents=True, exist_ok=True)
                     with open(cookie_file_path, "w", encoding="utf-8") as f:
                         f.write(cookie_input)
-                    config_file = user_config_dir / "config.toml"
-                    if config_file.exists():
-                        with open(config_file, "r", encoding="utf-8") as f:
-                            content = f.read()
-                        toml_safe_path = str(cookie_file_path).replace("\\", "/")
-                        content = content.replace('path = ""', f'path = "{toml_safe_path}"')
-                        with open(config_file, "w", encoding="utf-8") as f:
-                            f.write(content)
+                    # 保存 cookie 路径到独立文件
+                    cookie_path_file = user_config_dir / ".cookie_path"
+                    cookie_path_file.write_text(str(cookie_file_path), encoding="utf-8")
                     cookie_path = str(cookie_file_path)
                     console.print(f"[green]Cookie已保存[/green]\n")
                 else:
